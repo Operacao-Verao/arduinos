@@ -36,7 +36,7 @@ void setup(){
 }
 void loop(){
   //status chuva
-  int Chovendo = analogRead(chuva);// valor do sensor de chuva   
+  int32_t Chovendo = analogRead(chuva);// valor do sensor de chuva   
   //Serial.println(Chovendo);
   //Serial.print("Tempo: ");// 1º if
   /*
@@ -49,15 +49,14 @@ void loop(){
     digitalWrite(rele, HIGH);
   }
   */
+  Chovendo = (1024-Chovendo)/1;
+  //Serial.print("Sending data ");
+  //Serial.println(Chovendo);
+  Serial.write((char*)&Chovendo, sizeof(int32_t));
   // Fim chuva*******************
   
   // INÍCIO volume de chuva
   int32_t Volchu = analogRead(pluvio); // valor do sensor volume de chuva  
-  Volchu = (1024-Volchu)/1;
-  
-  //Serial.print("Sending data ");
-  //Serial.println(Volchu);
-  Serial.write((char*)&Volchu, sizeof(int32_t));
   /*
   //pausa motor durante a chuva
   if (Volchu<240){
@@ -66,6 +65,7 @@ void loop(){
   }
   // FIM volume de chuva
   */
+  
   // inicio Status do RIO
   int estadoB1 = digitalRead(boia1); /*ler sensor boia1*/
   //Serial.print("Alerta : "); 
