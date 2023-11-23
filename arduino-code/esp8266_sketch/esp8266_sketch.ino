@@ -1,11 +1,23 @@
+/*
+void setup() {
+  Serial.begin(115200);
+}
+
+void loop() {
+  if (Serial.available()) {
+    char c = Serial.read();
+    if (c == 'A') Serial.println("Received A");
+    if (c == 'B') Serial.println("Received B");
+  }
+}
+*/
+
+#include <stdint.h>
+
 #include "Arduino.h"
 
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
-
-#include <SoftwareSerial.h>
-
-SoftwareSerial soft_serial(1, 3);
 
 
 WiFiClient wifi_client;
@@ -14,7 +26,7 @@ const char* ssid = "arduinotcc";
 const char* password =  "EtecPouso142";
 
 //const String server_url = "http://192.168.1.125/web-gestao-main/";
-const String server_url = "http://192.168.1.19/web-gestao-main/";
+const String server_url = "http://192.168.1.14/web-gestao-main/";
 const String auth_url = server_url + "actions/fetch/arduino_access.php";
 const String send_url = server_url + "actions/fetch/arduino_send.php";
 
@@ -97,7 +109,6 @@ void sendData(int data){
 
 void setup(){
   Serial.begin(9600);
-  soft_serial.begin(9600);
 
   Serial.println();
   Serial.println("Booted");
@@ -114,19 +125,19 @@ void setup(){
 void loop(){
   unsigned long before_time = millis();
 
-  unsigned long data = 0;
-  if (soft_serial.available()>0){
-    data = soft_serial.read();
-  }
+  int32_t data = 0;
+  if (Serial.available()>0){
+    Serial.read((char*)&data, sizeof(int32_t));
+    Serial.print("Sending data ");
+    
+    Serial.println(data);
+    sendData(data);
   
-  Serial.print("Sending data ");
-  Serial.println(data);
-  sendData(data);
-
-  unsigned long actual_time = millis();
-  if (actual_time < before_time){
-    before_time = 0;
+    unsigned long actual_time = millis();
+    if (actual_time < before_time){
+      before_time = 0;
+    }
+    unsigned long elapsed_time = actual_time-before_time;
+    delay(upd_time-elapsed_time);
   }
-  unsigned long elapsed_time = actual_time-before_time;
-  delay(upd_time-elapsed_time);
 }
